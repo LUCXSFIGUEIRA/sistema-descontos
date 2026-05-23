@@ -5,7 +5,7 @@ export function calculateDiscount(value) {
   }
 
   const discount =
-    value < 100 ? 10 : 5;
+    value < 100 ? 50 : 15;
 
   const discountValue =
     (value * discount) / 100;
