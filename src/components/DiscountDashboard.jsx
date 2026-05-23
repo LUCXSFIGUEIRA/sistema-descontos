@@ -3,7 +3,7 @@ import { useState } from 'react';
 import {
   calculateDiscount
 } from '../services/discountService';
-
+const x =1;
 export default function DiscountDashboard() {
 
   const [value, setValue] = useState('');
