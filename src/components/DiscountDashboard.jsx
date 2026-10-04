@@ -4,110 +4,156 @@ import {
   calculateDiscount
 } from '../services/discountService';
 
+import './DiscountDashboard.css';
+
+const currency = new Intl.NumberFormat('pt-BR', {
+  style: 'currency',
+  currency: 'BRL'
+});
+
 export default function DiscountDashboard() {
 
   const [value, setValue] = useState('');
 
   const [result, setResult] = useState(null);
 
-  function handleCalculate() {
+  const [error, setError] = useState('');
 
-    const response =
-      calculateDiscount(Number(value));
+  function handleCalculate(event) {
 
-    setResult(response);
+    event.preventDefault();
+
+    try {
+
+      const response =
+        calculateDiscount(Number(value));
+
+      setResult(response);
+
+      setError('');
+
+    } catch {
+
+      setResult(null);
+
+      setError('Informe um valor maior que zero.');
+    }
   }
 
   return (
 
-    <div style={styles.container}>
+    <main className="dd-page">
 
-      <div style={styles.card}>
+      <section className="dd-card">
 
-        <h1 style={styles.title}>
-          Sistema Comercial
-        </h1>
+        <header className="dd-header">
 
-        <p style={styles.subtitle}>
-          Cálculo automático de descontos
-        </p>
+          <div className="dd-badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none"
+              stroke="currentColor" strokeWidth="2"
+              strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z" />
+              <circle cx="7.5" cy="7.5" r="1.5" />
+            </svg>
+          </div>
 
-        <div style={styles.formGroup}>
+          <div>
+            <h1 className="dd-title">
+              Sistema Comercial
+            </h1>
 
-          <label style={styles.label}>
+            <p className="dd-subtitle">
+              Cálculo automático de descontos
+            </p>
+          </div>
+
+        </header>
+
+        <form className="dd-form" onSubmit={handleCalculate} noValidate>
+
+          <label className="dd-label" htmlFor="purchase-value">
             Valor da Compra
           </label>
 
-          <input
-            type="number"
+          <div className={`dd-input-wrap${error ? ' dd-input-wrap--error' : ''}`}>
 
-            placeholder="Digite o valor"
+            <span className="dd-prefix">R$</span>
 
-            value={value}
+            <input
+              id="purchase-value"
 
-            onChange={(e) =>
-              setValue(e.target.value)
-            }
+              type="number"
 
-            style={styles.input}
-          />
+              inputMode="decimal"
 
-        </div>
+              min="0"
 
-        <button
-          onClick={handleCalculate}
-          style={styles.button}
-        >
-          Calcular Desconto
-        </button>
+              step="0.01"
+
+              placeholder="Digite o valor"
+
+              value={value}
+
+              onChange={(e) =>
+                setValue(e.target.value)
+              }
+
+              aria-invalid={Boolean(error)}
+
+              aria-describedby={error ? 'purchase-error' : undefined}
+
+              className="dd-input"
+            />
+
+          </div>
+
+          {
+            error && (
+              <p id="purchase-error" className="dd-error" role="alert">
+                {error}
+              </p>
+            )
+          }
+
+          <button type="submit" className="dd-button">
+            Calcular Desconto
+          </button>
+
+        </form>
 
         {
 
           result && (
 
-            <div style={styles.resultCard}>
+            <div className="dd-result" aria-live="polite">
 
-              <div style={styles.row}>
-                <span>
-                  Valor Original
-                </span>
-
-                <strong>
-                  R$ {result.originalValue}
-                </strong>
-              </div>
-
-              <div style={styles.row}>
-                <span>
-                  Desconto Aplicado
-                </span>
-
-                <strong>
-                  {result.discount}%
-                </strong>
-              </div>
-
-              <div style={styles.row}>
-                <span>
-                  Economia
-                </span>
-
-                <strong>
-                  R$ {result.discountValue}
-                </strong>
-              </div>
-
-              <div style={styles.divider}></div>
-
-              <div style={styles.totalRow}>
-                <span>
+              <div className="dd-result-head">
+                <span className="dd-result-label">
                   Valor Final
                 </span>
 
-                <strong>
-                  R$ {result.finalValue}
-                </strong>
+                <span className="dd-pill">
+                  {result.discount}% OFF
+                </span>
               </div>
+
+              <strong className="dd-total">
+                {currency.format(result.finalValue)}
+              </strong>
+
+              <dl className="dd-rows">
+
+                <div className="dd-row">
+                  <dt>Valor Original</dt>
+                  <dd>{currency.format(result.originalValue)}</dd>
+                </div>
+
+                <div className="dd-row dd-row--saving">
+                  <dt>Economia</dt>
+                  <dd>− {currency.format(result.discountValue)}</dd>
+                </div>
+
+              </dl>
 
             </div>
 
@@ -115,47 +161,9 @@ export default function DiscountDashboard() {
 
         }
 
-      </div>
+      </section>
 
-    </div>
+    </main>
 
   );
 }
-
-const styles = {
-
-  container: {
-
-    minHeight: '100vh',
-
-    display: 'flex',
-
-    justifyContent: 'center',
-
-    alignItems: 'center',
-
-    background: '#f3f4f6',
-
-    padding: '24px',
-
-    fontFamily:
-      'Roboto, Arial, sans-serif'
-  },
-
-  card: {
-
-    width: '100%',
-
-    maxWidth: '420px',
-
-    background: '#ffffff',
-
-    borderRadius: '16px',
-
-    padding: '32px',
-
-    boxShadow:
-      '0 2px 10px rgba(0,0,0,0.08)'
-  }
-
-};
